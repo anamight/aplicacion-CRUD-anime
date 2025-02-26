@@ -36,7 +36,7 @@ header {
 h1 {
     margin: 0;
     font-size: 32px;
-    
+
 }
 h1, h2{
     white-space: nowrap;
@@ -52,7 +52,6 @@ main {
 form input, form textarea, form select {
     display: block;
     width: 100%;
-    margin: 10px 0;
     padding: 15px;
     font-size: 16px;
     border-radius: 21px;
