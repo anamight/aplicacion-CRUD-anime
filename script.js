@@ -67,3 +67,21 @@ function addAnimeToTable(anime) {
 
     animeTablebody.appendChild(row);
 }
+
+//Guardar anime en localStorage
+function saveAnimeToStorage(anime) {
+    const storedAnimes = JSON.parse(localStorage.getItem('animes')) || [];
+    storedAnimes.push(anime);
+    localStorage.setItem('animes', JSON.stringify(storedAnimes));
+}
+
+//Función para eliminar anime 
+function deleteAnime(event) {
+    const row = event.target.closest('tr');
+    const animeId = row.dataset.id;
+    row.remove();
+
+    let storedAnimes = JSON.parse(localStorage.getItem('animes')) || [];
+    storedAnimes = storedAnimes.filter(anime => Number(anime.id) !== Number(animeId));
+    localStorage.setItem('animes', JSON.stringify(storedAnimes));
+}
