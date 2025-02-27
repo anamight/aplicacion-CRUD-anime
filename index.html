@@ -17,7 +17,7 @@
     <header>
         <div class="header-top">
             <div class="logo">
-                <img src="imágenes/logo1.jpg" class="rounded float-start" alt="Lodo de AnimeLog">
+                <img src="imágenes/logo1.jpg" class="rounded float-start" alt="Logo de AnimeLog">
             </div>
             <div class="p-4">
                 <h1>AnimeLog</h1>
@@ -67,7 +67,17 @@
         <section class="anime-list">
             <h2 class="mt-5">Lista de animes</h2>
             <table class="table" id="anime-table">
-                <tbody></tbody>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Género</th>
+                        <th>Episodios</th>
+                        <th>Estado</th>
+                        <th>Comentarios</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="anime-list"></tbody>
             </table>
         </section>
     </main>
