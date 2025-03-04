@@ -1,87 +1,91 @@
-const form = document.getElementById('anime-form');
-const animeTablebody = document.querySelector('#anime-table tbody');
+document.addEventListener("DOMContentLoaded", () => {
+    const animeForm = document.getElementById("anime-form");
+    const animeList = document.getElementById("anime-list");
+    const submitButton = animeForm.querySelector("button[type='submit']");
+    let animes = JSON.parse(localStorage.getItem("animes")) || [];
+    let editIndex = null;
 
-//Cargar animes al iniciar
-function loadAnimes() {
-    const storedAnimes = JSON.parse(localStorage.getItem('animes')) || [];
-    console.log("Animes cargados desde localStorage", storedAnimes);
-    storedAnimes.forEach(anime => {
-        if (anime.name.trim()) {
-            addAnimeToTable(anime);
-        }
-    })
-}
-
-//Agregar un anime
-function addAnime(event) {
-    event.preventDefault();
-
-// Obtener los valores del formulario
-    const animeName = form.querySelector('#anime-name').value.trim();
-    const genre = form.querySelector('#anime-genre').value.trim();
-    const episodes = form.querySelector('#anime-episodes').value.trim();
-    const status = form.querySelector('#anime-status').value.trim();
-    const comments = form.querySelector('#anime-comments').value.trim();
-
-    if (!animeName) {
-        alert('Por favor, ingresa el nombre del anime');
-        return;
+    // Función para renderizar la lista de animes
+    function renderList() {
+        animeList.innerHTML = "";
+        animes.forEach((anime, index) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${anime.name}</td>
+                <td>${anime.genre}</td>
+                <td>${anime.episodes}</td>
+                <td>${anime.status}</td>
+                <td>${anime.comments}</td>
+                <td>
+                    <button class="btn btn-warning btn-sm" onclick="editAnime(${index})">Editar</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteAnime(${index})">Eliminar</button>
+                </td>
+            `;
+            animeList.appendChild(row);
+        });
+        localStorage.setItem("animes", JSON.stringify(animes));
     }
 
-    const anime = {
-        id: Date.now(),
-        name: animeName,
-        genre,
-        episodes,
-        status,
-        comments
+    // Agregar o actualizar un anime
+    animeForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const name = document.getElementById("anime-name").value;
+        const genre = document.getElementById("anime-genre").value;
+        const episodes = document.getElementById("anime-episodes").value;
+        const status = document.getElementById("anime-status").value;
+        const comments = document.getElementById("anime-comments").value;
+
+        const newAnime = { name, genre, episodes, status, comments };
+        
+        if (editIndex !== null) {
+            animes[editIndex] = newAnime;
+            editIndex = null;
+            submitButton.textContent = "Agregar Anime";
+            document.getElementById("cancel-edit").remove();
+        } else {
+            animes.push(newAnime);
+        }
+
+        renderList();
+        animeForm.reset();
+    });
+
+    // Editar un anime
+    window.editAnime = (index) => {
+        const anime = animes[index];
+        document.getElementById("anime-name").value = anime.name;
+        document.getElementById("anime-genre").value = anime.genre;
+        document.getElementById("anime-episodes").value = anime.episodes;
+        document.getElementById("anime-status").value = anime.status;
+        document.getElementById("anime-comments").value = anime.comments;
+        
+        editIndex = index;
+        submitButton.textContent = "Actualizar Anime";
+
+        if (!document.getElementById("cancel-edit")) {
+            const cancelButton = document.createElement("button");
+            cancelButton.textContent = "Cancelar";
+            cancelButton.id = "cancel-edit";
+            cancelButton.className = "btn btn-secondary mt-2";
+            cancelButton.addEventListener("click", () => {
+                animeForm.reset();
+                editIndex = null;
+                submitButton.textContent = "Agregar Anime";
+                cancelButton.remove();
+            });
+            animeForm.appendChild(cancelButton);
+        }
     };
 
-    addAnimeToTable(anime);
-    saveAnimeToStorage(anime);
-    form.reset();
-}
+    // Eliminar un anime
+    window.deleteAnime = (index) => {
+        if (confirm("¿Estás seguro de que quieres eliminar este anime?")) {
+            animes.splice(index, 1);
+            renderList();
+        }
+    };
 
-//Agregar anime a la tabla 
-function addAnimeToTable(anime) {
-    const row = document.createElement('tr');
-    row.dataset.id = anime.id;
-
-    row.innerHTML = `
-        <td>${anime.name}</td>
-        <td>${anime.genre}</td>
-        <td>${anime.episodes}</td>
-        <td>${anime.status}</td>
-        <td>${anime.comments}</td>
-        <td>
-            <button class="edit">Editar</button>
-            <button class="delete">Eliminar</button>
-        </td>
-    `;
-
-    //Botón de editar
-    row.querySelector('.edit').addEventListener('click', () => editAnime(anime, row));
-
-    //Botón de eliminar
-    row.querySelector('.delete').addEventListener('click', deleteAnime);
-
-    animeTablebody.appendChild(row);
-}
-
-//Guardar anime en localStorage
-function saveAnimeToStorage(anime) {
-    const storedAnimes = JSON.parse(localStorage.getItem('animes')) || [];
-    storedAnimes.push(anime);
-    localStorage.setItem('animes', JSON.stringify(storedAnimes));
-}
-
-//Función para eliminar anime 
-function deleteAnime(event) {
-    const row = event.target.closest('tr');
-    const animeId = row.dataset.id;
-    row.remove();
-
-    let storedAnimes = JSON.parse(localStorage.getItem('animes')) || [];
-    storedAnimes = storedAnimes.filter(anime => Number(anime.id) !== Number(animeId));
-    localStorage.setItem('animes', JSON.stringify(storedAnimes));
-}
+    // Renderizar lista al cargar
+    renderList();
+});
